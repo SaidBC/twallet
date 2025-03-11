@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ROLE {
+  ADMIN
+  MODERATOR
+  USER
+}
+
+model User {
+  id                  Int           @id @default(autoincrement())
+  accountName         String
+  email               String        @unique
+  firstName           String
+  lastName            String
+  country             String
+  secretCode          String
+  password            String
+  role                ROLE          @default(USER)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  sessions            Session[]
+  sendTransactions    Transaction[] @relation("senderUser")
+  receiveTransactions Transaction[] @relation("receiverUser")
+  assets              Asset[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expires   DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model Asset {
+  id         String @id @default(cuid())
+  user       User   @relation(fields: [userId], references: [id])
+  userId     Int
+  symbol     String
+  quantities Int
+
+  @@unique([userId, symbol])
+}
+
+enum STATUS {
+  PAID
+  PENDING
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  from       User     @relation(name: "senderUser", fields: [senderId], references: [id])
+  senderId   Int
+  to         User     @relation(name: "receiverUser", fields: [receiverId], references: [id])
+  receiverId Int
+  symbol     String
+  quantities Int
+  status     STATUS
+  createdAt  DateTime @default(now())
+}
