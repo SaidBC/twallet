@@ -1,5 +1,6 @@
+import { auth } from "@/auth";
 import { logout } from "@/lib/actions";
-import { getSessionUser } from "@/lib/sessions";
+import { getSessionUser } from "@/lib/getSessionUser";
 import AssetsButton from "@/ui/AssetsButton";
 import IconicButton from "@/ui/IconicButton";
 import {
@@ -11,7 +12,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default async function Header() {
-  const currentUser = await getSessionUser();
+  const currentUser = (await auth())?.user;
+  const user = await getSessionUser();
   return (
     <header className=" flex items-center justify-between px-8">
       <AssetsButton />
@@ -30,7 +32,10 @@ export default async function Header() {
         </div>
         <IconicButton icon={faGear} />
         <form action={logout}>
-          <IconicButton icon={faRightFromBracket} />
+          <IconicButton
+            className="hover:text-red-800"
+            icon={faRightFromBracket}
+          />
         </form>
       </div>
     </header>

@@ -1,19 +1,20 @@
 import prisma from "@/lib/prisma";
-import getSessionFormAuthorizationOrCookie from "@/utils/getSessionFormAuthorizationOrCookie";
+import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSessionFormAuthorizationOrCookie(req);
-    if (!session.success || session.data == undefined)
-      return Response.json(session);
+    const userToken = await getToken({ req, secret: "ANY SECRET" });
+    if (!userToken)
+      return Response.json({
+        success: true,
+        errors: {
+          request: "Token not provided",
+        },
+      });
     const user = await prisma.user.findFirst({
       where: {
-        sessions: {
-          some: {
-            id: session.data.sessionId,
-          },
-        },
+        id: userToken.id,
       },
       select: {
         assets: true,

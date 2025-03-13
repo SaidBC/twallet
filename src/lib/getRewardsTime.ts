@@ -1,5 +1,6 @@
 import axios from "axios";
-import { cookies } from "next/headers";
+import { getToken } from "next-auth/jwt";
+import { headers } from "next/headers";
 interface IRewardsTimeResponse {
   success: boolean;
   data?: null | string;
@@ -16,16 +17,21 @@ type getRewardsTimeType =
   | Date;
 
 export default async function getRewardsTime(): Promise<getRewardsTimeType> {
-  const session = (await cookies()).get("session")?.value;
-  if (!session)
+  const token = await getToken({
+    raw: true,
+    req: {
+      headers: await headers(),
+    },
+  });
+  if (!token)
     return {
-      message: "session is not provided",
+      message: "token is not provided",
     };
   const res = await axios.get<IRewardsTimeResponse>(
     "http://localhost:3000/api/me/rewards",
     {
       headers: {
-        Authorization: "Bearer " + session,
+        Authorization: "Bearer " + token,
       },
     }
   );

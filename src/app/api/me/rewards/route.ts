@@ -1,21 +1,23 @@
 import prisma from "@/lib/prisma";
 import getSessionFormAuthorizationOrCookie from "@/utils/getSessionFormAuthorizationOrCookie";
+import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
 const DAY_TIMESTAMP = 1000 * 60 * 60 * 24;
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getSessionFormAuthorizationOrCookie(req);
-    if (!session.success || session.data == undefined)
-      return Response.json(session);
+    const userToken = await getToken({ req, secret: "ANY SECRET" });
+    if (!userToken)
+      return Response.json({
+        success: true,
+        errors: {
+          request: "Token not provided",
+        },
+      });
     const rewardedUser = await prisma.user.findFirst({
       where: {
-        sessions: {
-          some: {
-            id: session.data.sessionId,
-          },
-        },
+        id: userToken.id,
       },
     });
     if (!rewardedUser)
@@ -27,13 +29,14 @@ export async function POST(req: NextRequest) {
       });
     const lastTransaction = await prisma.transaction.findFirst({
       where: {
-        senderId: 1,
+        senderId: "cm86jo6do0000me016wmix94h",
         receiverId: rewardedUser.id,
       },
       orderBy: {
         createdAt: "asc",
       },
     });
+    console.log("lastTransaction", lastTransaction);
     if (
       lastTransaction &&
       lastTransaction.createdAt.getTime() + DAY_TIMESTAMP > Date.now()
@@ -41,7 +44,7 @@ export async function POST(req: NextRequest) {
       return Response.json({
         success: false,
         errors: {
-          request: ["rewarde time is not finished yet"],
+          request: ["Rewards time is not finished yet"],
         },
       });
     }
@@ -53,6 +56,21 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+    const rewardsHubUSDAsset = await prisma.asset.findUnique({
+      where: {
+        userId_symbol: {
+          userId: "cm86jo6do0000me016wmix94h",
+          symbol: "USD",
+        },
+      },
+    })!;
+    if (!rewardsHubUSDAsset || rewardsHubUSDAsset.quantities < 1)
+      return Response.json({
+        success: false,
+        errors: {
+          request: ["Rewards quantities was finished"],
+        },
+      });
     await prisma.asset.upsert({
       where: {
         userId_symbol: {
@@ -69,9 +87,21 @@ export async function POST(req: NextRequest) {
         quantities: (assets?.quantities || 0) + 1,
       },
     });
+    await prisma.asset.update({
+      where: {
+        userId_symbol: {
+          userId: "cm86jo6do0000me016wmix94h",
+          symbol: "USD",
+        },
+      },
+      data: {
+        quantities: rewardsHubUSDAsset.quantities - 1,
+      },
+    });
+
     const transaction = await prisma.transaction.create({
       data: {
-        senderId: 1,
+        senderId: "cm86jo6do0000me016wmix94h",
         receiverId: rewardedUser.id,
         symbol: "USD",
         quantities: 1,
@@ -93,16 +123,17 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getSessionFormAuthorizationOrCookie(req);
-    if (!session.success || session.data == undefined)
-      return Response.json(session);
+    const userToken = await getToken({ req, secret: "ANY SECRET" });
+    if (!userToken)
+      return Response.json({
+        success: true,
+        errors: {
+          request: "Token not provided",
+        },
+      });
     const rewardedUser = await prisma.user.findFirst({
       where: {
-        sessions: {
-          some: {
-            id: session.data.sessionId,
-          },
-        },
+        id: userToken.id,
       },
     });
     if (!rewardedUser)
@@ -115,7 +146,7 @@ export async function GET(req: NextRequest) {
 
     const transaction = await prisma.transaction.findFirst({
       where: {
-        senderId: 1,
+        senderId: "cm86jo6do0000me016wmix94h",
         receiverId: rewardedUser.id,
       },
       orderBy: {

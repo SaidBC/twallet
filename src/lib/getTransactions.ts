@@ -1,26 +1,25 @@
+import { ITransactionsResponse } from "@/types";
 import { Transaction } from "@prisma/client";
 import axios from "axios";
-import { cookies } from "next/headers";
-
-interface ITransactionsResponse {
-  success: boolean;
-  data: Transaction[];
-  errors?: {
-    request: string[];
-  };
-}
+import { getToken } from "next-auth/jwt";
+import { cookies, headers } from "next/headers";
 
 export default async function getTransactions() {
-  const session = (await cookies()).get("session")?.value;
-  if (!session)
+  const token = await getToken({
+    raw: true,
+    req: {
+      headers: await headers(),
+    },
+  });
+  if (!token)
     return {
-      request: ["Session is not provided"],
+      request: ["Token is not provided"],
     };
   const res = await axios.get<ITransactionsResponse>(
     "http://localhost:3000/api/me/transactions",
     {
       headers: {
-        Authorization: "Bearer " + session,
+        Authorization: "Bearer " + token,
       },
     }
   );

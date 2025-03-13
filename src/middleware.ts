@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/sessions";
+import { auth } from "./auth";
 
-const privateRoutes = ["/"];
+const privateRoutes = ["/", "/history", "/rewards", "/receive", "/send"];
 const authRoutes = ["/login", "/signup"];
 
 export default async function middleware(req: NextRequest) {
-  const user = await getSessionUser();
+  const user = await auth();
   const path = req.nextUrl.pathname;
   if (privateRoutes.includes(path) && !user)
     return NextResponse.redirect(new URL("/login", req.nextUrl));
@@ -14,5 +14,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
 };

@@ -17,7 +17,7 @@ export default function IconicItem({
       <Link
         className={clsx(
           className,
-          "flex justify-center hover:bg-white hover:text-blue-400 w-full py-5 border-r-3 border-transparent hover:border-r-blue-400"
+          "flex justify-center hover:bg-white hover:text-green-400 w-full py-5 border-r-3 border-transparent hover:border-r-green-400"
         )}
         href={href}
       >

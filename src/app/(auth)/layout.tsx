@@ -6,13 +6,11 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`bg-gradient-to-b from-blue-700 to-blue-900 min-h-dvh text-slate-900`}
-      >
-        <Header />
-        {children}
-      </body>
-    </html>
+    <body
+      className={`bg-gradient-to-b from-green-700 to-green-900 min-h-dvh text-slate-900`}
+    >
+      <Header />
+      {children}
+    </body>
   );
 }

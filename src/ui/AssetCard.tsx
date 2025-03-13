@@ -25,7 +25,7 @@ export default async function AssetCard({
   return (
     <li
       className={clsx(
-        "px-4 rounded-xl text-white flex flex-col gap-6 py-6 items-center",
+        "px-4 rounded-xl text-white flex flex-col gap-6 py-6 items-center max-w-md w-full",
         className
       )}
     >

@@ -1,9 +1,9 @@
-import { Transaction } from "@prisma/client";
+import { TransactionType } from "@/types";
 
 export default function TransactionsTable({
   transactions,
 }: {
-  transactions: Transaction[];
+  transactions: TransactionType[];
 }) {
   return (
     <table className="min-w-full divide-y divide-gray-200">
@@ -38,10 +38,10 @@ export default function TransactionsTable({
                 {transaction.symbol}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-bold">
-                {transaction.senderId}
+                {transaction.from.accountName}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-bold">
-                {transaction.receiverId}
+                {transaction.to.accountName}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-bold">
                 {transaction.quantities}

@@ -10,7 +10,7 @@ export default async function RewardsBox() {
     return <>Error Occured</>;
 
   return (
-    <div className="bg-white w-full py-8 items-center rounded-2xl shadow-xl mt-8 px-8 grid grid-cols-2">
+    <div className="bg-white w-full py-8 items-center rounded-2xl shadow-xl mt-8 px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
         <DynamicCountDown rewardTime={rewardTime} />
         <RewardsForm

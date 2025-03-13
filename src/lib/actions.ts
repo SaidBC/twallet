@@ -15,7 +15,9 @@ import loginSchema from "./schemas/loginSchema";
 import prisma from "./prisma";
 import bcrypt from "bcryptjs";
 import paymentSchema from "./schemas/paymentSchema";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { signIn, signOut } from "@/auth";
+import { getToken } from "next-auth/jwt";
 
 export async function signInWithCredentials(
   prevState: any,
@@ -53,7 +55,10 @@ export async function signInWithCredentials(
         credentials: ["Invalid credentials"],
       },
     };
-  await createSession(user.id);
+  await signIn("credentials", {
+    ...Object.fromEntries(formData),
+    redirect: false,
+  });
   return {
     isSuccess: true,
     isError: false,
@@ -85,8 +90,11 @@ export async function signUpWithCredentials(
         isError: true,
         errors: res.data.error,
       };
-    const user = res.data.data!;
-    await createSession(user.id);
+    await signIn("credentials", {
+      accountName: formData.get("accountName"),
+      password: formData.get("password"),
+      redirect: false,
+    });
     return {
       isSuccess: true,
       isError: false,
@@ -98,7 +106,7 @@ export async function signUpWithCredentials(
 }
 
 export async function logout() {
-  await deleteSession();
+  await signOut();
   revalidatePath("/");
 }
 
@@ -114,13 +122,18 @@ export async function sendPayment(
       errors: validatedData.error.flatten().fieldErrors,
     };
   try {
-    const session = (await cookies()).get("session")?.value;
-    if (!session)
+    const token = await getToken({
+      raw: true,
+      req: {
+        headers: await headers(),
+      },
+    });
+    if (!token)
       return {
         isError: true,
         isSuccess: false,
         errors: {
-          request: ["Session is no provided"],
+          request: ["Token is no provided"],
         },
       };
     const payment = await axios.post<IPaymentResponse>(
@@ -128,7 +141,7 @@ export async function sendPayment(
       Object.fromEntries(formData),
       {
         headers: {
-          Authorization: "Bearer " + session,
+          Authorization: "Bearer " + token,
         },
       }
     );
@@ -162,13 +175,18 @@ interface IClaimRewardsResponse {
 }
 
 export async function claimRewards(): Promise<ClaimRewardFormState> {
-  const session = (await cookies()).get("session")?.value;
-  if (!session)
+  const token = await getToken({
+    raw: true,
+    req: {
+      headers: await headers(),
+    },
+  });
+  if (!token)
     return {
       isError: true,
       isSuccess: false,
       errors: {
-        request: ["Session is not provided"],
+        request: ["Token is not provided"],
       },
     };
   const res = await axios.post<IClaimRewardsResponse>(
@@ -176,17 +194,19 @@ export async function claimRewards(): Promise<ClaimRewardFormState> {
     {},
     {
       headers: {
-        authorization: "Bearer " + session,
+        authorization: "Bearer " + token,
       },
     }
   );
   const data = res.data;
-  if (!data.success && data.errors)
+  if (!data.success && data.errors) {
+    revalidatePath("/rewards");
     return {
       isError: true,
       isSuccess: false,
       errors: data.errors,
     };
+  }
   return {
     isError: false,
     isSuccess: true,

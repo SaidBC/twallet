@@ -1,5 +1,5 @@
+import { Transaction, User } from "@prisma/client";
 import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
-import { ZodError } from "zod";
 
 export interface IsignupState {
   miniStep: number;
@@ -32,10 +32,7 @@ export type AuthFormState = {
 export interface IcreateUserApiResponse {
   success: boolean;
   error?: any;
-  data?: {
-    id: number;
-    accountName: string;
-  };
+  data?: Pick<User, "accountName" | "id">;
 }
 
 export interface SessionPayload {
@@ -77,6 +74,19 @@ export type AvailableSymbols = "BTC" | "USD" | "EUR" | "XRP" | "ETH" | "LTC";
 export interface IPaymentResponse {
   success: boolean;
   data?: any;
+  errors?: {
+    request: string[];
+  };
+}
+
+export type TransactionType = Omit<Transaction, "senderId" | "receiverId"> & {
+  from: { accountName: string };
+  to: { accountName: string };
+};
+
+export interface ITransactionsResponse {
+  success: boolean;
+  data: TransactionType[];
   errors?: {
     request: string[];
   };

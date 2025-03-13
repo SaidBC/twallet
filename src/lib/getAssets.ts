@@ -1,15 +1,21 @@
 import axios from "axios";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { IassetsResponse } from "@/types";
+import { getToken } from "next-auth/jwt";
 
 export default async function getAssets() {
-  const session = (await cookies()).get("session")?.value;
-  if (!session) return null;
+  const token = await getToken({
+    raw: true,
+    req: {
+      headers: await headers(),
+    },
+  });
+  if (!token) return null;
   const res = await axios.get<IassetsResponse>(
     "http://localhost:3000/api/me/assets",
     {
       headers: {
-        Authorization: "Bearer " + session,
+        authorization: "Bearer " + token,
       },
     }
   );

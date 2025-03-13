@@ -18,12 +18,17 @@ export default function SignupBox() {
   const handleNextMiniStep = () => setMiniStep((prev) => prev + 1);
   const handleBackMiniStep = () => setMiniStep((prev) => prev - 1);
   const handleNextStep = () => setCurrentStep((prev) => prev + 1);
+  const handleReset = () => {
+    setCurrentStep(1);
+    setMiniStep(1);
+  };
   return (
     <div className="bg-white w-lg rounded-4xl py-6 px-8 shadow-2xl">
       <BoxHeader
         canBackward={miniStep === 2 && currentStep === 1}
         currentStep={currentStep}
         handleBackMiniStep={handleBackMiniStep}
+        handleReset={handleReset}
       />
       {currentStep === 1 && (
         <StepOneForm

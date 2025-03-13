@@ -7,16 +7,22 @@ interface BoxHeaderProps {
   currentStep: number;
   canBackward: boolean;
   handleBackMiniStep: () => void;
+  handleReset: () => void;
 }
 
 export default function BoxHeader({
   currentStep,
   canBackward,
   handleBackMiniStep,
+  handleReset,
 }: BoxHeaderProps) {
   const handleBackward: MouseEventHandler<HTMLButtonElement> = function (e) {
     window.localStorage.removeItem("signupState");
     handleBackMiniStep();
+  };
+  const handleClose: MouseEventHandler<HTMLButtonElement> = function (e) {
+    window.localStorage.removeItem("signupState");
+    handleReset();
   };
   return (
     <div className="flex justify-between">
@@ -26,7 +32,7 @@ export default function BoxHeader({
         <div></div>
       )}
       <Steps currentStep={currentStep} steps={3} />
-      <IconicButton icon={faXmark} />
+      <IconicButton icon={faXmark} onClick={handleClose} />
     </div>
   );
 }

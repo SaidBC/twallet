@@ -17,7 +17,7 @@ export default async function AssetsList() {
         <h1>ALL ASSETS</h1>
       </div>
       <div className="bg-gray-100 rounded-lg rounded-tl-none">
-        <ul className="grid grid-cols-3 gap-4 px-4 py-3 ">
+        <ul className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 justify-items-center gap-4 px-4 py-3 ">
           <AssetCard
             name="Dollar"
             symbol="USD"
