@@ -15,6 +15,7 @@ import axios from "axios";
 import { Asset, IassetsResponse, PaymentFormState } from "@/types";
 import { sendPayment } from "@/lib/actions";
 import ErrorText from "@/components/ErrorText";
+import envClient from "@/utils/envClient";
 
 const initiialState: PaymentFormState = {
   isError: false,
@@ -46,7 +47,7 @@ export default function TransferForm() {
   useEffect(() => {
     (async function () {
       const res = await axios.get<IassetsResponse>(
-        "http://localhost:3000/api/me/assets",
+        envClient.NEXT_PUBLIC_API_URL + "/me/assets",
         {
           withCredentials: true,
         }

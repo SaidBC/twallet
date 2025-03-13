@@ -1,5 +1,11 @@
 import Header from "@/ui/Header";
 import Nav from "@/ui/Nav";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard - Twallet",
+  description: "Welcome to Login page",
+};
 
 export default function Layout({
   children,

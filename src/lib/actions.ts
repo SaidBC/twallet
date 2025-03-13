@@ -9,15 +9,19 @@ import {
 } from "@/types";
 import createUserSchema from "./schemas/createUserSchema";
 import axios from "axios";
-import { createSession, deleteSession } from "./sessions";
 import { revalidatePath } from "next/cache";
 import loginSchema from "./schemas/loginSchema";
 import prisma from "./prisma";
 import bcrypt from "bcryptjs";
 import paymentSchema from "./schemas/paymentSchema";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { signIn, signOut } from "@/auth";
 import { getToken } from "next-auth/jwt";
+import emailSchema from "./schemas/emailSchema";
+import getUserByEmail from "./getUserByEmail";
+import stepTwoFormSchama from "./schemas/stepTwoFormSchema";
+import getUserByAccountName from "./getUserByAccountName";
+import envClient from "@/utils/envClient";
 
 export async function signInWithCredentials(
   prevState: any,
@@ -81,7 +85,7 @@ export async function signUpWithCredentials(
     };
   try {
     const res = await axios.post<IcreateUserApiResponse>(
-      "http://localhost:3000/api/users",
+      envClient.NEXT_PUBLIC_API_URL + "/users",
       validatedData.data
     );
     if (!res.data.success)
@@ -137,7 +141,7 @@ export async function sendPayment(
         },
       };
     const payment = await axios.post<IPaymentResponse>(
-      "http://localhost:3000/api/me/payment",
+      envClient.NEXT_PUBLIC_API_URL + "/me/payment",
       Object.fromEntries(formData),
       {
         headers: {
@@ -190,7 +194,7 @@ export async function claimRewards(): Promise<ClaimRewardFormState> {
       },
     };
   const res = await axios.post<IClaimRewardsResponse>(
-    "http://localhost:3000/api/me/rewards",
+    envClient.NEXT_PUBLIC_API_URL + "/me/rewards",
     {},
     {
       headers: {
@@ -205,6 +209,67 @@ export async function claimRewards(): Promise<ClaimRewardFormState> {
       isError: true,
       isSuccess: false,
       errors: data.errors,
+    };
+  }
+  return {
+    isError: false,
+    isSuccess: true,
+    errors: {},
+  };
+}
+
+export async function isEmailExists(
+  prevState: any,
+  formData: FormData
+): Promise<AuthFormState> {
+  const validatedData = emailSchema.safeParse(formData.get("email"));
+  console.log(validatedData, formData);
+  if (!validatedData.success)
+    return {
+      isError: true,
+      errors: {
+        email: ["Invalid email"],
+      },
+      isSuccess: false,
+    };
+  const user = await getUserByEmail(validatedData.data);
+  if (user)
+    return {
+      isError: true,
+      isSuccess: false,
+      errors: {
+        email: ["Email is already exists"],
+      },
+    };
+  return {
+    isError: false,
+    isSuccess: true,
+    errors: {},
+  };
+}
+
+export async function stepTwoFormAction(
+  prevState: any,
+  formData: FormData
+): Promise<AuthFormState> {
+  const validatedData = stepTwoFormSchama.safeParse(
+    Object.fromEntries(formData)
+  );
+  if (!validatedData.success)
+    return {
+      isError: true,
+      errors: validatedData.error.flatten().fieldErrors,
+      isSuccess: false,
+    };
+  const { data } = validatedData;
+  const user = await getUserByAccountName(data.accountName);
+  if (user) {
+    return {
+      isError: true,
+      errors: {
+        accountName: ["Account name is already exists"],
+      },
+      isSuccess: false,
     };
   }
   return {

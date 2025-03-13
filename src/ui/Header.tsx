@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { logout } from "@/lib/actions";
-import { getSessionUser } from "@/lib/getSessionUser";
 import AssetsButton from "@/ui/AssetsButton";
 import IconicButton from "@/ui/IconicButton";
 import {
@@ -13,7 +12,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default async function Header() {
   const currentUser = (await auth())?.user;
-  const user = await getSessionUser();
   return (
     <header className=" flex items-center justify-between px-8">
       <AssetsButton />

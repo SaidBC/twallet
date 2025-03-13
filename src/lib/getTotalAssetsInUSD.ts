@@ -10,7 +10,6 @@ export default async function getTotalAssetsInUSD() {
       return (total += asset.quantities);
     const cryptoPrice = await getCryptoPrice(asset.symbol);
     total += cryptoPrice * asset.quantities;
-    console.log(total);
   });
   return total;
 }

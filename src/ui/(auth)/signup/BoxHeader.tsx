@@ -16,11 +16,11 @@ export default function BoxHeader({
   handleBackMiniStep,
   handleReset,
 }: BoxHeaderProps) {
-  const handleBackward: MouseEventHandler<HTMLButtonElement> = function (e) {
+  const handleBackward: MouseEventHandler<HTMLButtonElement> = function () {
     window.localStorage.removeItem("signupState");
     handleBackMiniStep();
   };
-  const handleClose: MouseEventHandler<HTMLButtonElement> = function (e) {
+  const handleClose: MouseEventHandler<HTMLButtonElement> = function () {
     window.localStorage.removeItem("signupState");
     handleReset();
   };

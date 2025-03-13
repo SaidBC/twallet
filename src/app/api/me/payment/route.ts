@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import paymentSchema from "@/lib/schemas/paymentSchema";
-import getSessionFormAuthorizationOrCookie from "@/utils/getSessionFormAuthorizationOrCookie";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 

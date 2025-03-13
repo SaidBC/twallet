@@ -1,6 +1,10 @@
 import { Transaction, User } from "@prisma/client";
 import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
+export interface IErrors {
+  [key: string]: string[] | undefined;
+}
+
 export interface IsignupState {
   miniStep: number;
   currentStep: number;
@@ -20,13 +24,7 @@ export type SubmitButtonProps = DetailedHTMLProps<
 export type AuthFormState = {
   isSuccess: boolean;
   isError: boolean;
-  errors: {
-    email?: string[];
-    password?: string[];
-    secretCode?: string[];
-    accountName?: string[];
-    credentials?: string[];
-  };
+  errors: IErrors;
 };
 
 export interface IcreateUserApiResponse {
@@ -53,20 +51,13 @@ export interface IassetsResponse {
 export interface PaymentFormState {
   isSuccess: boolean;
   isError: boolean;
-  errors: {
-    amount?: string[];
-    accountName?: string[];
-    paymentMethod?: string[];
-    request?: string[];
-  };
+  errors: IErrors;
 }
 
 export interface ClaimRewardFormState {
   isError: boolean;
   isSuccess: boolean;
-  errors: {
-    request?: string[];
-  };
+  errors: IErrors;
 }
 
 export type AvailableSymbols = "BTC" | "USD" | "EUR" | "XRP" | "ETH" | "LTC";
@@ -74,9 +65,7 @@ export type AvailableSymbols = "BTC" | "USD" | "EUR" | "XRP" | "ETH" | "LTC";
 export interface IPaymentResponse {
   success: boolean;
   data?: any;
-  errors?: {
-    request: string[];
-  };
+  errors?: IErrors;
 }
 
 export type TransactionType = Omit<Transaction, "senderId" | "receiverId"> & {
@@ -87,7 +76,13 @@ export type TransactionType = Omit<Transaction, "senderId" | "receiverId"> & {
 export interface ITransactionsResponse {
   success: boolean;
   data: TransactionType[];
-  errors?: {
-    request: string[];
-  };
+  errors?: IErrors;
 }
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  errors: IErrors;
+}
+
+export type IGetUserResponse = ApiResponse<User[]>;

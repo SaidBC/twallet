@@ -1,6 +1,4 @@
-import getAssets from "@/lib/getAssets";
 import getTotalAssetsInUSD from "@/lib/getTotalAssetsInUSD";
-import prisma from "@/lib/prisma";
 import { faSackDollar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

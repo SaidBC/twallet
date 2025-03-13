@@ -1,6 +1,7 @@
+import envClient from "@/utils/envClient";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:3000/api/";
+axios.defaults.baseURL = envClient.NEXT_PUBLIC_API_URL;
 
 interface ResponseData {
   success: boolean;
@@ -8,6 +9,6 @@ interface ResponseData {
 }
 
 export default async function getLastUser() {
-  const res = await axios.get<ResponseData>("/users");
+  const res = await axios.get<ResponseData>("/users/count");
   return res.data.data;
 }

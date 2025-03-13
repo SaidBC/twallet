@@ -9,7 +9,7 @@ import { IsignupState } from "@/types";
 import getLocalStorageItem from "@/utils/getLocalStorageItem";
 
 export default function SignupBox() {
-  let signupState: IsignupState | null = getLocalStorageItem("signupState");
+  const signupState: IsignupState | null = getLocalStorageItem("signupState");
 
   const [currentStep, setCurrentStep] = useState<number>(
     signupState?.currentStep || 1

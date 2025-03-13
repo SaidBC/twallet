@@ -1,3 +1,4 @@
+import envClient from "@/utils/envClient";
 import axios from "axios";
 import { getToken } from "next-auth/jwt";
 import { headers } from "next/headers";
@@ -28,7 +29,7 @@ export default async function getRewardsTime(): Promise<getRewardsTimeType> {
       message: "token is not provided",
     };
   const res = await axios.get<IRewardsTimeResponse>(
-    "http://localhost:3000/api/me/rewards",
+    envClient.NEXT_PUBLIC_API_URL + "/me/rewards",
     {
       headers: {
         Authorization: "Bearer " + token,

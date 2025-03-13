@@ -6,11 +6,19 @@ import TermsAndServices from "./TermsAndServices";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightLong } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
-import { MouseEventHandler, useState } from "react";
+import {
+  MouseEventHandler,
+  startTransition,
+  useActionState,
+  useEffect,
+  useState,
+} from "react";
 import emailSchema from "@/lib/schemas/emailSchema";
 import codeSchema from "@/lib/schemas/codeSchema";
-import { IsignupState } from "@/types";
+import { AuthFormState, IsignupState } from "@/types";
 import getLocalStorageItem from "@/utils/getLocalStorageItem";
+import { isEmailExists } from "@/lib/actions";
+import ErrorText from "@/components/ErrorText";
 const creationStartText = "You can create an account in one minute!";
 const emailConfirmationText = "Check your email and enter confirmation code";
 
@@ -20,19 +28,27 @@ interface StepOneFormProps {
   handleNextStep: () => void;
 }
 
+const initialValue: AuthFormState = {
+  isSuccess: false,
+  isError: false,
+  errors: {},
+};
+
 export default function StepOneForm({
   miniStep,
   handleNextMiniStep,
   handleNextStep,
 }: StepOneFormProps) {
-  let signupState: IsignupState | null = getLocalStorageItem("signupState");
+  const signupState: IsignupState | null = getLocalStorageItem("signupState");
+  const [formState, formAction, isPending] = useActionState(
+    isEmailExists,
+    initialValue
+  );
 
   const [email, setEmail] = useState(signupState?.user.email || "");
   const [code, setCode] = useState("");
-  const handleSubmit: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.preventDefault();
-    if (miniStep === 1) {
-      handleNextMiniStep();
+  useEffect(() => {
+    if (formState.isSuccess) {
       const state: IsignupState = {
         miniStep: 2,
         currentStep: 1,
@@ -40,8 +56,19 @@ export default function StepOneForm({
           email,
         },
       };
-      window.localStorage.setItem("signupState", JSON.stringify(state));
+      if (miniStep === 1) {
+        handleNextMiniStep();
+        window.localStorage.setItem("signupState", JSON.stringify(state));
+      }
     }
+  }, [formState.isSuccess]); // eslint-disable-line
+  const handleSubmit: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("email", email);
+    startTransition(() => {
+      formAction(formData);
+    });
   };
   const handleContinueWithoutConfimation: MouseEventHandler<
     HTMLButtonElement
@@ -81,6 +108,9 @@ export default function StepOneForm({
           value={email}
           setInput={setEmail}
         />
+        {formState.isError && formState.errors.email && (
+          <ErrorText>{formState.errors.email[0]}</ErrorText>
+        )}
         {miniStep === 1 && <TermsAndServices />}
         <div className="grid grid-cols-2 gap-6">
           {miniStep === 2 && (
@@ -95,7 +125,7 @@ export default function StepOneForm({
           )}
           <SubmitButton
             className={clsx(miniStep === 2 ? "self-end" : "col-[1_/_3]")}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isPending}
             onClick={handleSubmit}
           >
             Create account

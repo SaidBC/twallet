@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import getSessionFormAuthorizationOrCookie from "@/utils/getSessionFormAuthorizationOrCookie";
+import envServer from "@/utils/envServer";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
@@ -29,14 +29,13 @@ export async function POST(req: NextRequest) {
       });
     const lastTransaction = await prisma.transaction.findFirst({
       where: {
-        senderId: "cm86jo6do0000me016wmix94h",
+        senderId: envServer.REWARDS_HUB_ID,
         receiverId: rewardedUser.id,
       },
       orderBy: {
         createdAt: "asc",
       },
     });
-    console.log("lastTransaction", lastTransaction);
     if (
       lastTransaction &&
       lastTransaction.createdAt.getTime() + DAY_TIMESTAMP > Date.now()
@@ -59,7 +58,7 @@ export async function POST(req: NextRequest) {
     const rewardsHubUSDAsset = await prisma.asset.findUnique({
       where: {
         userId_symbol: {
-          userId: "cm86jo6do0000me016wmix94h",
+          userId: envServer.REWARDS_HUB_ID,
           symbol: "USD",
         },
       },
@@ -90,7 +89,7 @@ export async function POST(req: NextRequest) {
     await prisma.asset.update({
       where: {
         userId_symbol: {
-          userId: "cm86jo6do0000me016wmix94h",
+          userId: envServer.REWARDS_HUB_ID,
           symbol: "USD",
         },
       },
@@ -101,7 +100,7 @@ export async function POST(req: NextRequest) {
 
     const transaction = await prisma.transaction.create({
       data: {
-        senderId: "cm86jo6do0000me016wmix94h",
+        senderId: envServer.REWARDS_HUB_ID,
         receiverId: rewardedUser.id,
         symbol: "USD",
         quantities: 1,
@@ -146,7 +145,7 @@ export async function GET(req: NextRequest) {
 
     const transaction = await prisma.transaction.findFirst({
       where: {
-        senderId: "cm86jo6do0000me016wmix94h",
+        senderId: envServer.REWARDS_HUB_ID,
         receiverId: rewardedUser.id,
       },
       orderBy: {

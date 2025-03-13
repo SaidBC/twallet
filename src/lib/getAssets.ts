@@ -2,6 +2,7 @@ import axios from "axios";
 import { headers } from "next/headers";
 import { IassetsResponse } from "@/types";
 import { getToken } from "next-auth/jwt";
+import envClient from "@/utils/envClient";
 
 export default async function getAssets() {
   const token = await getToken({
@@ -12,7 +13,7 @@ export default async function getAssets() {
   });
   if (!token) return null;
   const res = await axios.get<IassetsResponse>(
-    "http://localhost:3000/api/me/assets",
+    envClient.NEXT_PUBLIC_API_URL + "/me/assets",
     {
       headers: {
         authorization: "Bearer " + token,

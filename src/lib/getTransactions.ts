@@ -1,8 +1,8 @@
 import { ITransactionsResponse } from "@/types";
-import { Transaction } from "@prisma/client";
+import envClient from "@/utils/envClient";
 import axios from "axios";
 import { getToken } from "next-auth/jwt";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 
 export default async function getTransactions() {
   const token = await getToken({
@@ -16,7 +16,7 @@ export default async function getTransactions() {
       request: ["Token is not provided"],
     };
   const res = await axios.get<ITransactionsResponse>(
-    "http://localhost:3000/api/me/transactions",
+    envClient.NEXT_PUBLIC_API_URL + "/me/transactions",
     {
       headers: {
         Authorization: "Bearer " + token,

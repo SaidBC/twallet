@@ -1,14 +1,28 @@
 "use client";
 
+import ErrorText from "@/components/ErrorText";
 import Input from "@/components/Inputs/Input";
 import SubmitButton from "@/components/SubmitButton";
+import { stepTwoFormAction } from "@/lib/actions";
 import getLastUser from "@/lib/getTotalUsers";
-import { IsignupState } from "@/types";
+import { AuthFormState, IsignupState } from "@/types";
 import generatePassword from "@/utils/generatePassword";
 import getLocalStorageItem from "@/utils/getLocalStorageItem";
 import { faArrowRightLong } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { MouseEventHandler, useEffect, useState } from "react";
+import {
+  MouseEventHandler,
+  startTransition,
+  useActionState,
+  useEffect,
+  useState,
+} from "react";
+
+const initialValue: AuthFormState = {
+  isSuccess: false,
+  isError: false,
+  errors: {},
+};
 
 export default function StepTwoForm({
   handleNextStep,
@@ -16,7 +30,10 @@ export default function StepTwoForm({
   handleNextStep: () => void;
 }) {
   const signupState: IsignupState | null = getLocalStorageItem("signupState");
-
+  const [formState, formAction, isPending] = useActionState(
+    stepTwoFormAction,
+    initialValue
+  );
   const [password, setPassword] = useState(signupState?.user.password || "");
   const [repeatPassword, setRepeatPassword] = useState(
     signupState?.user.password || ""
@@ -27,6 +44,22 @@ export default function StepTwoForm({
   const [accountName, setAccountName] = useState(
     signupState?.user.accountName || ""
   );
+  useEffect(() => {
+    if (formState.isSuccess) {
+      handleNextStep();
+      const state: IsignupState = {
+        currentStep: 3,
+        miniStep: 2,
+        user: {
+          email: signupState?.user.email,
+          password,
+          secretCode,
+          accountName,
+        },
+      };
+      window.localStorage.setItem("signupState", JSON.stringify(state));
+    }
+  }, [formState.isSuccess]); // eslint-disable-line
   useEffect(() => {
     if (signupState !== null) {
       if (
@@ -50,39 +83,36 @@ export default function StepTwoForm({
               accountName: "P" + (users + 1),
             },
           };
-          setAccountName((prev) => "P" + (users + 1));
+          setAccountName(() => "P" + (users + 1));
           setPassword(generatedPassword);
           setRepeatPassword(generatedPassword);
           setSecretCode(randomNum);
           window.localStorage.setItem("signupState", JSON.stringify(state));
         })();
     }
-  }, []);
+  }, [signupState]);
 
   const isFormValid =
     password.length >= 6 &&
     repeatPassword.length >= 6 &&
     secretCode.length >= 6 &&
-    accountName.length >= 6;
+    accountName.length >= 2;
 
   const handleSubmit: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
-    handleNextStep();
-    const state: IsignupState = {
-      currentStep: 3,
-      miniStep: 2,
-      user: {
-        email: signupState?.user.email,
-        password,
-        secretCode,
-        accountName,
-      },
-    };
-    window.localStorage.setItem("signupState", JSON.stringify(state));
+    const formData = new FormData();
+    formData.append("password", password);
+    formData.append("repeatPassword", repeatPassword);
+    formData.append("secretCode", secretCode);
+    formData.append("accountName", accountName);
+
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
-    <form action="" className="pt-6">
+    <form className="pt-6">
       <div className="flex flex-col gap-4">
         <h1 className="text-xl max-w-sm self-center text-center">
           Please save it in a safe place!
@@ -96,42 +126,57 @@ export default function StepTwoForm({
           label="Password"
           placeholder="Password"
         />
+        {formState.isError && formState.errors.password && (
+          <ErrorText>{formState.errors.password[0]}</ErrorText>
+        )}
         <Input
           success={repeatPassword.length >= 6}
           setInput={setRepeatPassword}
           value={repeatPassword}
           type="text"
-          name="repeat_password"
+          name="repeatPassword"
           label="Repeat password"
           placeholder="Repeat password"
         />
+        {formState.isError && formState.errors.repeatPassword && (
+          <ErrorText>{formState.errors.repeatPassword[0]}</ErrorText>
+        )}
         <Input
           success={secretCode.length >= 6}
           value={secretCode}
           setInput={setSecretCode}
           type="text"
-          name="secret_code"
+          name="secretCode"
           label="Secret code"
           placeholder="Secret code"
         />
+        {formState.isError && formState.errors.secretCode && (
+          <ErrorText>{formState.errors.secretCode[0]}</ErrorText>
+        )}
         <Input
-          success={accountName.length >= 6}
+          success={accountName.length >= 2}
           value={accountName}
           setInput={setAccountName}
           type="text"
-          name="account_name"
+          name="accountName"
           label="Account name"
           placeholder="Account name"
         />
+        {formState.isError && formState.errors.accountName && (
+          <ErrorText>{formState.errors.accountName[0]}</ErrorText>
+        )}
         <SubmitButton
           onClick={handleSubmit}
           className="flex items-center self-center gap-8 px-6 "
-          disabled={!isFormValid}
+          disabled={!isFormValid || isPending}
         >
           <span></span>
           <span>Next</span>
           <FontAwesomeIcon icon={faArrowRightLong} />
         </SubmitButton>
+        {formState.isError && formState.errors.request && (
+          <ErrorText>{formState.errors.request[0]}</ErrorText>
+        )}
       </div>
     </form>
   );

@@ -3,7 +3,7 @@ import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 
-export default function Page() {
+export default async function Page() {
   return (
     <div className="flex flex-col items-center gap-6 mb-12">
       <div className="text-white flex flex-col items-center gap-3">
