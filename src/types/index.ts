@@ -29,7 +29,7 @@ export type AuthFormState = {
 
 export interface IcreateUserApiResponse {
   success: boolean;
-  error?: any;
+  error?: IErrors;
   data?: Pick<User, "accountName" | "id">;
 }
 
@@ -64,7 +64,7 @@ export type AvailableSymbols = "BTC" | "USD" | "EUR" | "XRP" | "ETH" | "LTC";
 
 export interface IPaymentResponse {
   success: boolean;
-  data?: any;
+  data?: Transaction;
   errors?: IErrors;
 }
 

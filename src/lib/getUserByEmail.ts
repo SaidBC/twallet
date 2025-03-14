@@ -10,7 +10,8 @@ export default async function getUserByEmail(email: string) {
     if (!res.data.success) return null;
     const users = res.data.data;
     return users.length === 0 ? null : users;
-  } catch (_) {
+  } catch (err) {
+    console.error(err);
     return null;
   }
 }

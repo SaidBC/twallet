@@ -15,7 +15,8 @@ export default async function getCryptoPrice(symbol: string) {
     );
     const cryptoPrice = res.data.price;
     return Number(cryptoPrice);
-  } catch (_) {
+  } catch (err) {
+    console.error(err);
     return 0;
   }
 }
