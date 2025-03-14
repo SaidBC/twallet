@@ -16,7 +16,7 @@ type InputProps = DetailedHTMLProps<
 > & {
   label: string | React.ReactNode;
   success?: boolean;
-  setInput: Dispatch<SetStateAction<unknown>>;
+  setInput: Dispatch<SetStateAction<any>>;
 };
 
 export default function Input({
