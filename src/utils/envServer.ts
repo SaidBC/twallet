@@ -3,7 +3,6 @@ import { z } from "zod";
 const envSchema = z.object({
   DATABASE_URL: z.string().refine(
     (val) => {
-      console.log(val);
       return val.startsWith("postgresql://") || val.startsWith("postgres://");
     },
     {
