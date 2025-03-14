@@ -18,27 +18,32 @@ type getRewardsTimeType =
   | Date;
 
 export default async function getRewardsTime(): Promise<getRewardsTimeType> {
-  const token = await getToken({
-    raw: true,
-    req: {
-      headers: await headers(),
-    },
-  });
-  if (!token)
-    return {
-      message: "token is not provided",
-    };
-  const res = await axios.get<IRewardsTimeResponse>(
-    envClient.NEXT_PUBLIC_API_URL + "/me/rewards",
-    {
-      headers: {
-        Authorization: "Bearer " + token,
+  try {
+    const token = await getToken({
+      raw: true,
+      req: {
+        headers: await headers(),
       },
-    }
-  );
-  if (!res.data.success || res.data.data === undefined)
-    return {
-      message: "an error is occurs",
-    };
-  return typeof res.data.data === "string" ? new Date(res.data.data) : null;
+    });
+    if (!token)
+      return {
+        message: "token is not provided",
+      };
+    const res = await axios.get<IRewardsTimeResponse>(
+      envClient.NEXT_PUBLIC_API_URL + "/me/rewards",
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+    console.log(res);
+    if (!res.data.success || res.data.data === undefined)
+      return {
+        message: "an error is occurs",
+      };
+    return typeof res.data.data === "string" ? new Date(res.data.data) : null;
+  } catch (error) {
+    return null;
+  }
 }

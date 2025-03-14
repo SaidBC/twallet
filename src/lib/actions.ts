@@ -223,7 +223,6 @@ export async function isEmailExists(
   formData: FormData
 ): Promise<AuthFormState> {
   const validatedData = emailSchema.safeParse(formData.get("email"));
-  console.log(validatedData, formData);
   if (!validatedData.success)
     return {
       isError: true,
