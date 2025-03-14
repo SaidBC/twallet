@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const userToken = await getToken({
       req,
-      secureCookie: envClient.NEXT_NODE_ENV === "production",
+      secureCookie: envClient.NEXT_PUBLIC_NODE_ENV === "production",
       secret: envServer.AUTH_SECRET,
     });
     if (!userToken)

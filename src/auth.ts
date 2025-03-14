@@ -50,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
-  useSecureCookies: envClient.NEXT_NODE_ENV === "production",
+  useSecureCookies: envClient.NEXT_PUBLIC_NODE_ENV === "production",
   secret: envServer.AUTH_SECRET,
   adapter: PrismaAdapter(prisma),
 });

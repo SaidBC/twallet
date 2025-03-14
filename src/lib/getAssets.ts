@@ -8,7 +8,7 @@ export default async function getAssets() {
   try {
     const token = await getToken({
       raw: true,
-      secureCookie: envClient.NEXT_NODE_ENV === "production",
+      secureCookie: envClient.NEXT_PUBLIC_NODE_ENV === "production",
       req: {
         headers: await headers(),
       },
