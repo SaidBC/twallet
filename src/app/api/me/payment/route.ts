@@ -1,11 +1,17 @@
 import prisma from "@/lib/prisma";
 import paymentSchema from "@/lib/schemas/paymentSchema";
+import envClient from "@/utils/envClient";
+import envServer from "@/utils/envServer";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const userToken = await getToken({ req, secret: "ANY SECRET" });
+    const userToken = await getToken({
+      req,
+      secureCookie: envClient.NEXT_NODE_ENV === "production",
+      secret: envServer.AUTH_SECRET,
+    });
     if (!userToken)
       return Response.json({
         success: true,

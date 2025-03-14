@@ -4,6 +4,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./lib/prisma";
 import loginSchema from "./lib/schemas/loginSchema";
 import bcrypt from "bcryptjs";
+import envClient from "./utils/envClient";
+import envServer from "./utils/envServer";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -48,6 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
-  secret: "ANY SECRET",
+  useSecureCookies: envClient.NEXT_NODE_ENV === "production",
+  secret: envServer.AUTH_SECRET,
   adapter: PrismaAdapter(prisma),
 });

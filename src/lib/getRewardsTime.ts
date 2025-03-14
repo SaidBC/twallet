@@ -20,6 +20,7 @@ type getRewardsTimeType =
 export default async function getRewardsTime(): Promise<getRewardsTimeType> {
   try {
     const token = await getToken({
+      secureCookie: envClient.NEXT_NODE_ENV === "production",
       raw: true,
       req: {
         headers: await headers(),
@@ -37,7 +38,6 @@ export default async function getRewardsTime(): Promise<getRewardsTimeType> {
         },
       }
     );
-    console.log(res);
     if (!res.data.success || res.data.data === undefined)
       return {
         message: "an error is occurs",

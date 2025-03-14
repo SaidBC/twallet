@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import envClient from "@/utils/envClient";
 import envServer from "@/utils/envServer";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
@@ -7,7 +8,11 @@ const DAY_TIMESTAMP = 1000 * 60 * 60 * 24;
 
 export async function POST(req: NextRequest) {
   try {
-    const userToken = await getToken({ req, secret: "ANY SECRET" });
+    const userToken = await getToken({
+      req,
+      secureCookie: envClient.NEXT_NODE_ENV === "production",
+      secret: envServer.AUTH_SECRET,
+    });
     if (!userToken)
       return Response.json({
         success: true,
@@ -122,7 +127,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const userToken = await getToken({ req, secret: "ANY SECRET" });
+    const userToken = await getToken({
+      req,
+      secureCookie: envClient.NEXT_NODE_ENV === "production",
+      secret: envServer.AUTH_SECRET,
+    });
     if (!userToken)
       return Response.json({
         success: true,

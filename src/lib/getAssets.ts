@@ -8,6 +8,7 @@ export default async function getAssets() {
   try {
     const token = await getToken({
       raw: true,
+      secureCookie: envClient.NEXT_NODE_ENV === "production",
       req: {
         headers: await headers(),
       },
@@ -21,13 +22,11 @@ export default async function getAssets() {
         },
       }
     );
-    console.log(res);
     const data = res.data;
     if (!data.success) return null;
 
     return data.data;
   } catch (error) {
-    console.log(error);
     return null;
   }
 }

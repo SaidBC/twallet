@@ -127,6 +127,7 @@ export async function sendPayment(
     };
   try {
     const token = await getToken({
+      secureCookie: envClient.NEXT_NODE_ENV === "production",
       raw: true,
       req: {
         headers: await headers(),
@@ -180,6 +181,7 @@ interface IClaimRewardsResponse {
 
 export async function claimRewards(): Promise<ClaimRewardFormState> {
   const token = await getToken({
+    secureCookie: envClient.NEXT_NODE_ENV === "production",
     raw: true,
     req: {
       headers: await headers(),

@@ -10,9 +10,7 @@ const envSchema = z.object({
       }
     ),
   REWARDS_HUB_ID: z.string(),
+  AUTH_SECRET: z.string(),
 });
 
-export default envSchema.parse({
-  DATABASE_URL: process.env.DATABASE_URL,
-  REWARDS_HUB_ID: process.env.DATABASE_URL,
-});
+export default envSchema.parse(process.env);
